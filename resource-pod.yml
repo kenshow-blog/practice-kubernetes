@@ -12,5 +12,5 @@ spec:
   volumes:
   - name: storage
     hostPath:
-      path: /data/storage
+      path: /var/lib/minikube/data/storage
       type: Directory

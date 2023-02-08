@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: sample
+spec:
+  # スケールアウトする数を指定する。
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+      env: study
+  template:
+    metadata:
+      name: nginx
+      # matchLabelsと一致させる必要がある↓
+      labels:
+        app: web
+        env: study
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.17.2-alpine
