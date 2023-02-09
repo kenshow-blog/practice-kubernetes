@@ -192,6 +192,31 @@ metadata:
   annotations:
     kubernetes.io/change-cause: "Update nginx"
 ```
+
+## Service
+外部公開、名前解決、L4ロードバランサーの役割を果たす。
+
+[サービス](./out/service.png)
+
+```
+kubectl get all
+NAME        READY   STATUS    RESTARTS   AGE
+pod/nginx   1/1     Running   0          103s
+
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        2d6h
+service/web-svc      NodePort    10.107.255.230   <none>        80:30000/TCP   41s
+```
+
+***つまづきポイント***
+`minikube ipのip + 30000`
+ではアクセスできない
+
+1. `minikube service web-svc --url`でsshで繋げた状態にする
+2. `ps -ef | grep docker@127.0.0.1`で開いているポートを確認
+3. -L 60789:10.107.255.230:80と会ったら60789がつながっているのでlocalhost:68789にアクセスすると繋がる。
+
+
 ## ConfigMapについて学ぶ
 
 k8sで使用する設定情報を集約するファイル
@@ -199,6 +224,70 @@ k8sで使用する設定情報を集約するファイル
 watch mode
 
 `kubectl get pods -w`
+
+***環境変数で接続する場合***
+valueFromに作成したConfigMapを指定する。
+
+```yml
+env:
+- name: TYPE
+  valueFrom:
+    configMapKeyRef:
+      name: sample-config
+      key: type
+```
+
+***volumesとvolumeMountsに指定してマウント**
+
+## Secret
+k8s上で利用する機微情報
+
+`kubectl create secret generic NAME [option]`
+名称を指定してSecretを生成
+
+オプション
+- --from-literal=key=value キーバリューを指定して作成
+- --from-file=filename ファイルから作成
+
+`echo -n 'TEXT' | base64`
+指定した文字列のBase64変換後文字列を取得する。
+
+```
+touch secret.yml
+kensho@test practice-kubernetes % kubectl create secret generic sample-secret --from-literal=message='H
+ello World!' --from-file=./keyfile
+secret/sample-secret created
+kensho@test practice-kubernetes % kubectl get secret
+NAME            TYPE     DATA   AGE
+sample-secret   Opaque   2      8s
+kensho@test practice-kubernetes % kubectl get secret/sample-secret -o yaml
+```
+
+生成されたyamlをコピペする
+
+
+## 永続データ
+- ***PersistentVolume(PV)***
+  永続データの実態
+
+- ***PersistentVolumeClaim(PVC)***
+  永続データの要求
+
+## StatefulSet
+Podの集合。Podをスケールする際の名前が一定。
+
+リソースを立ち上げ一時的に作成したpodから本リソースへアクセスする。
+
+```
+% kubectl run debug --image=centos:7 -it --rm --restart=Never -- sh
+If you don't see a command prompt, try pressing enter.
+sh-4.2# curl http://nginx-0.sample-svc/
+```
+
+## Ingress
+外部公開、L7ロードバランサー
+
+URLでサービスを切り替えられる
 
 
 ## minikube特有の罠

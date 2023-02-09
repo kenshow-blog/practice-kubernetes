@@ -12,5 +12,5 @@ spec:
   volumes:
   - name: storage
     hostPath:
-      path: /var/lib/minikube/data/storage
+      path: /personal/github/practice-kubernetes/data/storage
       type: Directory
