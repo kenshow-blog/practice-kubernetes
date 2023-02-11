@@ -302,3 +302,17 @@ minikube is configured to persist files stored under the following directories, 
 /tmp/hostpath_pv
 /tmp/hostpath-provisioner
 引用：https://minikube.sigs.k8s.io/docs/reference/persistent_volumes/
+
+
+## web-app構築
+
+secret.ymlの作成
+```sh
+openssl rand -base64 1024 | tr -d '\r\n' | cut -c 1-1024 > keyfile
+kubectl create secret generic mongo-secret --from-literal=root_username=admin --from-literal=root_password=Password --from-file=./keyfile
+```
+
+pod名 + headless service名でアクセスできる
+```
+ping mongo-1.db-svc
+```
