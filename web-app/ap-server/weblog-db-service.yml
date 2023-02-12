@@ -1,0 +1,28 @@
+## Podを作成する前のdb疎通確認用
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    env: study
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+    nodePort: 32717
+  type: NodePort
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    env: study
+subsets:
+- addresses:
+  - ip: 10.244.0.23
+  ports:
+  - port: 27017
+

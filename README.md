@@ -316,3 +316,13 @@ pod名 + headless service名でアクセスできる
 ```
 ping mongo-1.db-svc
 ```
+
+imageがdbに繋がるか確かめるために手動でコンテナ立ち上げ
+```
+docker run -e MONGODB_USERNAME="user" -e MONGODB_PASSWORD="welcome" -e MONGODB_HOSTS="192.168.49.2:32717" -e MONGODB_DATABASE="weblog" -d -p 8080:3000 weblog-app:v1.0.0
+```
+
+webサーバーがap-serverと疎通できるか確認するための手動コンテナ立ち上げ
+```
+docker run -e APPLICATION_HOST=192.168.49.2:30000 -p 8080:80 -d weblog-web:v1.0.0
+```
