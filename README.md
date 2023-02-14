@@ -1,9 +1,65 @@
-## kubernetes学習メモ
+## なにか
 
+私が kubernetes を学習するにあたってメモ書きしたリポジトリです。
+
+kubernetes の基礎 ~ 応用(kubernetes 環境での web アプリ開発)まで取り組んでいました。
+
+## kubernetes 上で web アプリ構築
+
+### システム構成図
+
+[システム構成図 1](./web-app/out/システム構成.png)
+
+[システム構成図 2](./web-app/out/システム構成1.png)
+
+### ネットワーク構成図
+
+[ネットワーク構成図](./web-app/out/ネットワーク構成.png)
+
+### 開発工程
+
+1. db
+
+2. ap サーバー
+
+3. フロントエンド
+
+4. web サーバー(nginx)
+
+### secret.yml の作成
+
+```sh
+openssl rand -base64 1024 | tr -d '\r\n' | cut -c 1-1024 > keyfile
+kubectl create secret generic mongo-secret --from-literal=root_username=admin --from-literal=root_password=Password --from-file=./keyfile
+```
+
+### あるサービスから他サービスへのアクセス
+
+pod 名 + headless service 名でアクセスできる
+
+```
+ping mongo-1.db-svc
+```
+
+### pod 上で立ち上げる自作 Docker Image が起動するかを確認する
+
+image が db に繋がるか確かめるために手動でコンテナ立ち上げ
+
+```
+docker run -e MONGODB_USERNAME="user" -e MONGODB_PASSWORD="welcome" -e MONGODB_HOSTS="192.168.49.2:32717" -e MONGODB_DATABASE="weblog" -d -p 8080:3000 weblog-app:v1.0.0
+```
+
+web サーバーが ap-server と疎通できるか確認するための手動コンテナ立ち上げ
+
+```
+docker run -e APPLICATION_HOST=192.168.49.2:30000 -p 8080:80 -d weblog-web:v1.0.0
+```
+
+## kubernetes 学習メモ
 
 [仮想化環境](./out/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202023-02-04%2017.19.16.png)
 
-1. minikubeのインストールを行う
+1. minikube のインストールを行う
 
 ## クラスタ実行/停止/状態確認
 
@@ -17,14 +73,15 @@
 削除: minikube addons disable ADDON_NAME
 一覧確認: minikube addons list
 
-## Dockerコマンド復習
+## Docker コマンド復習
+
 使われてないイメージを一括削除
 
 `docker image prune`
 
-## Kubernetes入門
+## Kubernetes 入門
 
-### hello-worldをk8s上で実行する
+### hello-world を k8s 上で実行する
 
 - `kubectl run hello-world --
 image hello-world --restart=Never`
@@ -33,7 +90,8 @@ image hello-world --restart=Never`
 
 - `kubectl logs pod/hello-world`でログを確認
 
-### k8sとは？
+### k8s とは？
+
 コンテナオーケストレーション
 
 システム運用で困っていたことが解決できる
@@ -49,55 +107,59 @@ image hello-world --restart=Never`
 
 マスターノードを経由して各ワーカーノードを操作する
 
-4分類10種類のリソース
+4 分類 10 種類のリソース
 
 ワークロード
- - Pod
- - ReplicaSet
- - Deployment
- - StatefulSet
+
+- Pod
+- ReplicaSet
+- Deployment
+- StatefulSet
 
 サービス
- - Service
- - Ingress
+
+- Service
+- Ingress
 
 設定
- - ConfigMap
- - Secret
+
+- ConfigMap
+- Secret
 
 ストレージ
- - PersistentVolume
- - PersistentVolumeClaim
+
+- PersistentVolume
+- PersistentVolumeClaim
 
 リソース作成コマンド
 
 `kubectl apply -f pod.yml`
 
-pod.ymlはマニフェストファイル
+pod.yml はマニフェストファイル
 
-種別: kindはリソース種別。kindによってapiVersionは決まっている
+種別: kind はリソース種別。kind によって apiVersion は決まっている
 
-メタデータ: Pod名は名前空間と合わせて一意にする。
+メタデータ: Pod 名は名前空間と合わせて一意にする。
 
-コンテナ定義: spec内にコンテナ名を指定、どのイメージを指定するかもできる。
+コンテナ定義: spec 内にコンテナ名を指定、どのイメージを指定するかもできる。
 
-Secretリソースのコマンド作成
+Secret リソースのコマンド作成
 
 `kubectl create secret generic NAME OPTIONS`
 
-k8sとDockerのコマンド操作の違い
+k8s と Docker のコマンド操作の違い
 Docker: ENTRYPOINT
 k8s: command
 
 Docker: CMD
 k8s: args
 
-apiVersionはk8sのreferenceから確認
+apiVersion は k8s の reference から確認
 
 コンテナへ入る
 kubectl exec -it POD sh
 
-exitでコンテナから出る
+exit でコンテナから出る
 
 ### ファイル転送
 
@@ -122,17 +184,18 @@ kubectl describe pod/debug
 
 kubectl logs [TYPE/NAME]
 
-`kubectl get pod -o wide`でipアドレスも確認可能
+`kubectl get pod -o wide`で ip アドレスも確認可能
 
 ## Pod
-最小単位、同一環境で動作するDockerコンテナの集合
+
+最小単位、同一環境で動作する Docker コンテナの集合
 
 複数のコンテナを所有することが可能
 
 ## ReplicaSet
 
-Podの集合。Podをスケールできる
-replicas 2を指定すると2つコンテナができる
+Pod の集合。Pod をスケールできる
+replicas 2 を指定すると 2 つコンテナができる
 
 ```
 kensho@test practice-kubernetes % kubectl apply -f replicaset.yml
@@ -144,13 +207,14 @@ sample-njwn7   1/1     Running   0          8s
 ```
 
 ## Deployment
-ReplicaSetの集合。ReplicaSetの世代管理ができる。
 
-replicasetの履歴保存する
+ReplicaSet の集合。ReplicaSet の世代管理ができる。
+
+replicaset の履歴保存する
 
 strategy: デプロイ方法を指定する
-    maxSurge: レプリカ数を超えて良いPod数
-    maxUnavailable: 一度に消失して良いPod数
+maxSurge: レプリカ数を超えて良い Pod 数
+maxUnavailable: 一度に消失して良い Pod 数
 
 ロールアウト履歴確認
 `kubectl rollout history TYPE/NAME`
@@ -184,7 +248,7 @@ REVISION  CHANGE-CAUSE
 2         Update nginx
 ```
 
-CHANGE-CAUSEを更新するにはmetadataに以下を追記
+CHANGE-CAUSE を更新するには metadata に以下を追記
 
 ```
 metadata:
@@ -194,7 +258,8 @@ metadata:
 ```
 
 ## Service
-外部公開、名前解決、L4ロードバランサーの役割を果たす。
+
+外部公開、名前解決、L4 ロードバランサーの役割を果たす。
 
 [サービス](./out/service.png)
 
@@ -208,49 +273,50 @@ service/kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        2
 service/web-svc      NodePort    10.107.255.230   <none>        80:30000/TCP   41s
 ```
 
-***つまづきポイント***
+**_つまづきポイント_**
 `minikube ipのip + 30000`
 ではアクセスできない
 
-1. `minikube service web-svc --url`でsshで繋げた状態にする
+1. `minikube service web-svc --url`で ssh で繋げた状態にする
 2. `ps -ef | grep docker@127.0.0.1`で開いているポートを確認
-3. -L 60789:10.107.255.230:80と会ったら60789がつながっているのでlocalhost:68789にアクセスすると繋がる。
+3. -L 60789:10.107.255.230:80 と会ったら 60789 がつながっているので localhost:68789 にアクセスすると繋がる。
 
+## ConfigMap について学ぶ
 
-## ConfigMapについて学ぶ
-
-k8sで使用する設定情報を集約するファイル
+k8s で使用する設定情報を集約するファイル
 
 watch mode
 
 `kubectl get pods -w`
 
-***環境変数で接続する場合***
-valueFromに作成したConfigMapを指定する。
+**_環境変数で接続する場合_**
+valueFrom に作成した ConfigMap を指定する。
 
 ```yml
 env:
-- name: TYPE
-  valueFrom:
-    configMapKeyRef:
-      name: sample-config
-      key: type
+  - name: TYPE
+    valueFrom:
+      configMapKeyRef:
+        name: sample-config
+        key: type
 ```
 
-***volumesとvolumeMountsに指定してマウント**
+**\*volumes と volumeMounts に指定してマウント**
 
 ## Secret
-k8s上で利用する機微情報
+
+k8s 上で利用する機微情報
 
 `kubectl create secret generic NAME [option]`
-名称を指定してSecretを生成
+名称を指定して Secret を生成
 
 オプション
+
 - --from-literal=key=value キーバリューを指定して作成
 - --from-file=filename ファイルから作成
 
 `echo -n 'TEXT' | base64`
-指定した文字列のBase64変換後文字列を取得する。
+指定した文字列の Base64 変換後文字列を取得する。
 
 ```
 touch secret.yml
@@ -263,20 +329,21 @@ sample-secret   Opaque   2      8s
 kensho@test practice-kubernetes % kubectl get secret/sample-secret -o yaml
 ```
 
-生成されたyamlをコピペする
-
+生成された yaml をコピペする
 
 ## 永続データ
-- ***PersistentVolume(PV)***
+
+- **_PersistentVolume(PV)_**
   永続データの実態
 
-- ***PersistentVolumeClaim(PVC)***
+- **_PersistentVolumeClaim(PVC)_**
   永続データの要求
 
 ## StatefulSet
-Podの集合。Podをスケールする際の名前が一定。
 
-リソースを立ち上げ一時的に作成したpodから本リソースへアクセスする。
+Pod の集合。Pod をスケールする際の名前が一定。
+
+リソースを立ち上げ一時的に作成した pod から本リソースへアクセスする。
 
 ```
 % kubectl run debug --image=centos:7 -it --rm --restart=Never -- sh
@@ -285,16 +352,17 @@ sh-4.2# curl http://nginx-0.sample-svc/
 ```
 
 ## Ingress
-外部公開、L7ロードバランサー
 
-URLでサービスを切り替えられる
+外部公開、L7 ロードバランサー
 
+URL でサービスを切り替えられる
 
-## minikube特有の罠
-hostPathはルートディレクトリに作らないとマウントができない。
+## minikube 特有の罠
 
->A note on mounts, persistence, and minikube hosts
-minikube is configured to persist files stored under the following directories, which are made in the Minikube VM (or on your localhost if running on bare metal). You may lose data from other directories on reboots.
+hostPath はルートディレクトリに作らないとマウントができない。
+
+> A note on mounts, persistence, and minikube hosts
+> minikube is configured to persist files stored under the following directories, which are made in the Minikube VM (or on your localhost if running on bare metal). You may lose data from other directories on reboots.
 
 /data
 /var/lib/minikube
@@ -302,27 +370,3 @@ minikube is configured to persist files stored under the following directories, 
 /tmp/hostpath_pv
 /tmp/hostpath-provisioner
 引用：https://minikube.sigs.k8s.io/docs/reference/persistent_volumes/
-
-
-## web-app構築
-
-secret.ymlの作成
-```sh
-openssl rand -base64 1024 | tr -d '\r\n' | cut -c 1-1024 > keyfile
-kubectl create secret generic mongo-secret --from-literal=root_username=admin --from-literal=root_password=Password --from-file=./keyfile
-```
-
-pod名 + headless service名でアクセスできる
-```
-ping mongo-1.db-svc
-```
-
-imageがdbに繋がるか確かめるために手動でコンテナ立ち上げ
-```
-docker run -e MONGODB_USERNAME="user" -e MONGODB_PASSWORD="welcome" -e MONGODB_HOSTS="192.168.49.2:32717" -e MONGODB_DATABASE="weblog" -d -p 8080:3000 weblog-app:v1.0.0
-```
-
-webサーバーがap-serverと疎通できるか確認するための手動コンテナ立ち上げ
-```
-docker run -e APPLICATION_HOST=192.168.49.2:30000 -p 8080:80 -d weblog-web:v1.0.0
-```
