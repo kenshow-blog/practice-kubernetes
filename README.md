@@ -18,13 +18,13 @@ kubernetes の基礎 ~ 応用(kubernetes 環境での web アプリ開発)まで
 
 ### 開発工程
 
-1. db
+1. db(mongodb) 構築
 
-2. ap サーバー
+2. ap サーバー 構築
 
-3. フロントエンド
+3. フロントエンド 構築
 
-4. web サーバー(nginx)
+4. web サーバー(nginx) 構築
 
 ### secret.yml の作成
 
