@@ -8,13 +8,13 @@ kubernetes の基礎 ~ 応用(kubernetes 環境での web アプリ開発)まで
 
 ### システム構成図
 
-[システム構成図 1](./web-app/out/システム構成.png)
+[システム構成図 1](https://github.com/kenshow-blog/practice-kubernetes/blob/main/web-app/out/%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%90.png?raw=true)
 
-[システム構成図 2](./web-app/out/システム構成1.png)
+[システム構成図 2](https://github.com/kenshow-blog/practice-kubernetes/blob/main/web-app/out/%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%901.png?raw=true)
 
 ### ネットワーク構成図
 
-[ネットワーク構成図](./web-app/out/ネットワーク構成.png)
+[ネットワーク構成図](https://github.com/kenshow-blog/practice-kubernetes/blob/main/web-app/out/%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E6%A7%8B%E6%88%90.png?raw=true)
 
 ### 開発工程
 
